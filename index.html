@@ -259,7 +259,7 @@ footer{padding:26px 3vw;border-top:1px solid var(--line);display:flex;
   <section class="stats">
     <div class="stat"><b>6+</b><span>PROJECTS SHIPPED</span></div>
     <div class="stat"><b>24/7</b><span>PIPELINES RUNNING</span></div>
-    <div class="stat"><b>0</b><span>SUBSCRIPTIONS SOLD</span></div>
+    <div class="stat"><b>30萬+</b><span>MONTHLY STORE REVENUE · 6MO RAMP</span></div>
     <div class="stat"><b>0</b><span>NARCS DETECTED</span></div>
   </section>
 
@@ -410,7 +410,7 @@ const GOODS=[
    desc:'LINE 上的私人 AI 團隊。待辦、打卡、記帳、排程 routine，一個 Cloud Run 養一整組小弟。',
    chips:['FASTAPI','FIRESTORE','LINE','SCHEDULER']},
   {id:'meowbox',name:'MEOWBOX',tag:'FOUNDER · CAT DIVISION',
-   desc:'喵盒子 meowbox.tw，本人創辦的台灣貓咪社群。從第一行 code 到上線營運一手包，純 vanilla HTML/CSS/JS + Supabase，跟本站一樣不吃框架。',
+   desc:'喵盒子 meowbox.tw，本人創辦的台灣貓咪社群與賣場。從第一行 code 到上線營運一手包，用數據分析選品與定價，六個月內把賣場營收做到單月 30 萬+。',
    chips:['FOUNDER','HTML','JS','SUPABASE'],link:'https://meowbox.tw'},
   {id:'txf',name:'TXF ORACLE',tag:'THE FORTUNE TELLER',
    desc:'台指期每小時預測 routine。雲端排程分析、官方價自動記分、LINE 準時播報，猜錯自己認。',
@@ -480,7 +480,7 @@ const CREW=[
   ];
   const TALK=[
     ['本小時預測：偏多。理由等下一根 K 棒揭曉。','我每小時 :25 出手，:20 對答案，戰績全記在案。','猜錯我自己認，這叫職業道德。'],
-    ['老闆的賣場我顧著，競品我全看過一輪了。','上架 SOP：參照、填表、送出。一路點到完成。','要買貓咪冰墊嗎？現在下單明天出貨。'],
+    ['老闆的賣場我顧著，競品我全看過一輪了。','老闆用數據選品定價，六個月做到單月 30 萬。我負責把貨上好上滿。','要買貓咪冰墊嗎？現在下單明天出貨。'],
     ['你今天打卡了嗎？沒有的話我要開始催了。','行事曆我比對過了，該補的卡我都記得。','TICK TOCK。卡不打，我就傳 LINE。'],
     ['這個月伙食超支 12%。我只是說出事實。','每一筆我都記著，包括你不想想起的那筆。','收支平衡是一種美德。BALANCE。'],
     ['你有 3 件事逾期了，我明天還會再提醒。','寫在紙上的待辦不算數，進系統的才算。','+1 DONE。今天也是有產出的一天。'],
@@ -605,7 +605,7 @@ $('#wings').textContent=asciiRender(92,24,function(g,w,h){
 },' .:!*#%');
 
 /* ---------------- TICKER + CLOCK ---------------- */
-$('#tick').textContent=('★ THE SUPPLY: DATA PIPELINES · BOTS · CAT SITES ★ 0 SUBSCRIPTIONS ★ SQL PURITY 99.9% ★ RUNS ON GCP · SLEEPS NEVER ★ INSTANT DELIVERY ★ NO NARCS ★ ').repeat(6);
+$('#tick').textContent=('★ THE SUPPLY: DATA PIPELINES · BOTS · CAT SITES ★ DATA-DRIVEN: STORE REVENUE NT$300K+/MO IN 6 MONTHS ★ SQL PURITY 99.9% ★ RUNS ON GCP · SLEEPS NEVER ★ INSTANT DELIVERY ★ NO NARCS ★ ').repeat(6);
 setInterval(()=>{$('#clock').textContent=new Date().toTimeString().slice(0,8);},1000);
 
 /* ---------------- MATRIX RAIN (bg + fg bleed layer) ---------------- */
