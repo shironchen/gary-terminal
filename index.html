@@ -405,22 +405,34 @@ const GOODS=[
 /* ---------------- THE CREW (bzteam roster + daily ops) ---------------- */
 const CREW=[
   {name:'股神',code:'THE ORACLE',
-   face:['    _!_    ','  .-"""-.  ',' / (o) (o)\\','|    ^    |',' \\  ~~~  / ','  `-...-`  ',' [TXF 88%] '],
+   frames:[
+     ['    _!_    ','  .-"""-.  ',' / (o) (o)\\','|    ^    |',' \\  ~~~  / ','  `-...-`  ',' [TXF 88%] '],
+     ['    _!_    ','  .-"""-.  ',' / (-) (-)\\','|    ^    |',' \\  ___  / ','  `-...-`  ',' [TXF ??%] ']],
    desc:'盤勢判讀手。台指期每小時出一次預測，官方價自動對答案記分，戰績攤開，猜錯自己認。'},
   {name:'蝦皮助手',code:'THE LISTER',
-   face:['   _____   ','  | o o |  ','  |  _  |  ','  |_____|  ',' /|SHOP |\\ ','  |_____|  ','  d     b  '],
+   frames:[
+     ['   _____   ','  | o o |  ','  |  _  |  ','  |_____|  ',' /|SHOP |\\ ','  |_____|  ','  d     b  '],
+     ['   _____   ','  | - - |  ','  |  o  |  ','  |_____|  ',' \\|SALE!|/ ','  |_____|  ','   d   b   ']],
    desc:'電商上架手。直接接管 Chrome 開賣場，競品參照、表單自動填、一路點到上架完成。'},
   {name:'打卡小弟',code:'THE CLOCK',
-   face:['   .---.   ','  /12   \\  ',' |9  +  3| ','  \\  6  /  ','   `---`   ','  _/```\\_  ',' TICK TOCK '],
+   frames:[
+     ['   .---.   ','  /12   \\  ',' |9  +  3| ','  \\  6  /  ','   `---`   ','  _/```\\_  ',' TICK TOCK '],
+     ['   .---.   ','  /12   \\  ',' |9  +--3| ','  \\  6  /  ','   `---`   ','  _/```\\_  ',' TOCK TICK ']],
    desc:'考勤看守。盯著打卡日曆比對行事曆，該打沒打，LINE 直接催到你打為止。'},
   {name:'記帳小弟',code:'THE LEDGER',
-   face:['  _______  ',' | $ | # | ',' |---+---| ',' | # | $ | ',' |___|___| ','  (o) (o)  ','  BALANCE  '],
+   frames:[
+     ['  _______  ',' | $ | # | ',' |---+---| ',' | # | $ | ',' |___|___| ','  (o) (o)  ','  BALANCE  '],
+     ['  _______  ',' | # | $ | ',' |---+---| ',' | $ | # | ',' |___|___| ','  (-) (-)  ','  COUNTING ']],
    desc:'帳房。每筆流水入庫，錢從哪來去哪一清二楚，月底不用對發票對到懷疑人生。'},
   {name:'待辦管家',code:'THE KEEPER',
-   face:['  .-----.  ','  |[x]  |  ','  |[x]  |  ','  |[ ]<-|  ','  `-----`  ','  (o___o)  ','  NO LOSS  '],
+   frames:[
+     ['  .-----.  ','  |[x]  |  ','  |[x]  |  ','  |[ ]<-|  ','  `-----`  ','  (o___o)  ','  NO LOSS  '],
+     ['  .-----.  ','  |[x]  |  ','  |[x]  |  ','  |[x]OK|  ','  `-----`  ','  (^___^)  ','  +1 DONE  ']],
    desc:'任務庫管理員。所有 follow-up 進中央待辦庫歸檔，不准寫在紙上，沒做完的隔天繼續追。'},
   {name:'巡檢兵',code:'THE MEDIC',
-   face:['    _+_    ','  .-|_|-.  ',' | (-)(-)| ','  \\  o  /  ','   |###|   ','  /|   |\\  ',' ALL GREEN '],
+   frames:[
+     ['    _+_    ','  .-|_|-.  ',' | (-)(-)| ','  \\  o  /  ','   |###|   ','  /|   |\\  ',' ALL GREEN '],
+     ['    _+_    ','  .-|_|-.  ',' | (o)(o)| ','  \\  o  /  ','   |#..|   ','  /|   |\\  ',' SCANNING_ ']],
    desc:'系統軍醫。每天 heartbeat 巡檢全線服務，故障不等老闆發現——自己先傳 LINE 認錯。'}
 ];
 (function buildCrew(){
@@ -430,8 +442,25 @@ const CREW=[
     el.className='member';
     el.innerHTML='<pre></pre><h3>'+m.name+'</h3>'
       +'<div class="code">'+m.code+'</div><p>'+m.desc+'</p>';
-    el.querySelector('pre').textContent=m.face.join('\n');
+    el.querySelector('pre').textContent=m.frames[0].join('\n');
     grid.appendChild(el);
+  }
+  /* idle animation: long rest on frame 0, quick flash of frame 1;
+     the oracle re-rolls his TXF score every time he lands back on base */
+  if(!RM){
+    grid.querySelectorAll('.member pre').forEach((pre,i)=>{
+      const F=CREW[i].frames;
+      let fi=0;
+      (function loop(){
+        setTimeout(()=>{
+          fi=(fi+1)%F.length;
+          if(i===0&&fi===0)
+            F[0][6]=' [TXF '+(R(74,97)|0)+'%] ';
+          pre.textContent=F[fi].join('\n');
+          loop();
+        },fi===0?R(1600,4200):R(220,420));
+      })();
+    });
   }
   const OPS=[
     ['07:30','THE MEDIC','heartbeat 全系統巡檢 · 沒事不吵，有事 LINE 認錯'],
