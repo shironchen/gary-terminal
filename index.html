@@ -480,72 +480,126 @@ const SFX={
     tone(110,55,.5,'sawtooth',.05,.3);}
 };
 
-/* ---- music graph ---- */
-let MG=null; /* {master, padBus, delay} */
+/* ---- music: dark phonk step sequencer (92 BPM, 16 steps/bar) ---- */
+let MG=null;
 function buildMusic(){
   const c=ac();if(!c||MG)return;
-  const master=c.createGain();master.gain.value=.11;master.connect(c.destination);
-  /* drone: two detuned saws through a slowly-breathing lowpass */
-  const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=220;lp.Q.value=.8;
-  const dg=c.createGain();dg.gain.value=.5;
-  lp.connect(dg);dg.connect(master);
-  for(const f of[55,55.6]){
-    const o=c.createOscillator();o.type='sawtooth';o.frequency.value=f;
-    o.connect(lp);o.start();
-  }
-  const lfo=c.createOscillator();lfo.frequency.value=.045;
-  const lfoG=c.createGain();lfoG.gain.value=90;
-  lfo.connect(lfoG);lfoG.connect(lp.frequency);lfo.start();
-  /* pad bus + blip delay */
-  const padBus=c.createGain();padBus.gain.value=.6;
-  const padLp=c.createBiquadFilter();padLp.type='lowpass';padLp.frequency.value=900;
-  padBus.connect(padLp);padLp.connect(master);
-  const delay=c.createDelay(1);delay.delayTime.value=.42;
-  const fb=c.createGain();fb.gain.value=.35;
-  const wet=c.createGain();wet.gain.value=.3;
+  const master=c.createGain();master.gain.value=.17;
+  const comp=c.createDynamicsCompressor();
+  comp.threshold.value=-18;comp.ratio.value=4;
+  master.connect(comp);comp.connect(c.destination);
+  /* dotted-8th delay bus for plucks/pads */
+  const delay=c.createDelay(1);delay.delayTime.value=.489; /* .375 beat @92bpm */
+  const fb=c.createGain();fb.gain.value=.32;
+  const wet=c.createGain();wet.gain.value=.22;
   delay.connect(fb);fb.connect(delay);delay.connect(wet);wet.connect(master);
-  MG={master,padBus,delay,c};
+  /* shared noise buffer (hats / snare / crackle) */
+  const nb=c.createBuffer(1,c.sampleRate,c.sampleRate);
+  const nd=nb.getChannelData(0);
+  for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
+  /* vinyl crackle floor for the lo-fi dirt */
+  const cr=c.createBufferSource();cr.buffer=nb;cr.loop=true;cr.playbackRate.value=.35;
+  const crF=c.createBiquadFilter();crF.type='bandpass';crF.frequency.value=3200;crF.Q.value=.4;
+  const crG=c.createGain();crG.gain.value=.012;
+  cr.connect(crF);crF.connect(crG);crG.connect(master);cr.start();
+  MG={c,master,delay,nb};
 }
-const PROG=[ /* Am → F → C → G, low register */
-  [110,130.81,164.81],
-  [87.31,110,130.81],
-  [130.81,164.81,196],
-  [98,123.47,146.83]
-];
-let padStep=0;
-function playPad(){
-  if(!MG||!musicOn||MG.c.state!=='running')return;
-  const c=MG.c,T=c.currentTime;
-  for(const f of PROG[padStep%PROG.length]){
-    const o=c.createOscillator();o.type='triangle';o.frequency.value=f;
+function noiseHit(T,filt,f,q,a,d,v){
+  const c=MG.c;
+  const s=c.createBufferSource();s.buffer=MG.nb;
+  s.playbackRate.value=R(.9,1.1);
+  const fl=c.createBiquadFilter();fl.type=filt;fl.frequency.value=f;fl.Q.value=q;
+  const gn=c.createGain();env(gn,T,a,d,v);
+  s.connect(fl);fl.connect(gn);gn.connect(MG.master);
+  s.start(T);s.stop(T+a+d+.05);
+}
+const V={
+  kick(T){const c=MG.c;
+    const o=c.createOscillator();o.type='sine';
+    o.frequency.setValueAtTime(150,T);
+    o.frequency.exponentialRampToValueAtTime(42,T+.11);
+    const gn=c.createGain();env(gn,T,.004,.3,.85);
+    o.connect(gn);gn.connect(MG.master);o.start(T);o.stop(T+.4);
+    noiseHit(T,'highpass',3500,.5,.001,.02,.12); /* beater click */
+  },
+  snare(T){
+    noiseHit(T,'bandpass',1800,.9,.002,.16,.3);
+    const c=MG.c;
+    const o=c.createOscillator();o.type='triangle';o.frequency.value=185;
+    const gn=c.createGain();env(gn,T,.002,.09,.2);
+    o.connect(gn);gn.connect(MG.master);o.start(T);o.stop(T+.15);
+  },
+  hat(T,open){noiseHit(T,'highpass',7800,1,.001,open?.22:.035,open?.09:.11);},
+  bass(T,f,dur){const c=MG.c;
+    const o=c.createOscillator();o.type='sine';o.frequency.value=f;
+    const o2=c.createOscillator();o2.type='square';o2.frequency.value=f;
+    const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=420;
+    const g2=c.createGain();g2.gain.value=.25;
     const gn=c.createGain();
     gn.gain.setValueAtTime(0,T);
-    gn.gain.linearRampToValueAtTime(.09,T+2.6);
-    gn.gain.setValueAtTime(.09,T+4.2);
-    gn.gain.linearRampToValueAtTime(0,T+8);
-    o.connect(gn);gn.connect(MG.padBus);
-    o.start(T);o.stop(T+8.2);
+    gn.gain.linearRampToValueAtTime(.5,T+.012);
+    gn.gain.setValueAtTime(.5,T+dur*.6);
+    gn.gain.exponentialRampToValueAtTime(.0001,T+dur);
+    o.connect(gn);o2.connect(g2);g2.connect(lp);lp.connect(gn);gn.connect(MG.master);
+    o.start(T);o.stop(T+dur+.05);o2.start(T);o2.stop(T+dur+.05);
+  },
+  pad(T,freqs){const c=MG.c;
+    for(const f of freqs){
+      const o=c.createOscillator();o.type='sawtooth';
+      o.frequency.value=f;o.detune.value=R(-7,7);
+      const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=750;
+      const gn=c.createGain();
+      gn.gain.setValueAtTime(0,T);
+      gn.gain.linearRampToValueAtTime(.045,T+1.6);
+      gn.gain.setValueAtTime(.045,T+3.4);
+      gn.gain.linearRampToValueAtTime(0,T+5.2);
+      o.connect(lp);lp.connect(gn);gn.connect(MG.master);gn.connect(MG.delay);
+      o.start(T);o.stop(T+5.4);
+    }
+  },
+  pluck(T,f){const c=MG.c;
+    const o=c.createOscillator();o.type='square';o.frequency.value=f;
+    const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1600;
+    const gn=c.createGain();env(gn,T,.004,.16,.075);
+    o.connect(lp);lp.connect(gn);gn.connect(MG.delay);gn.connect(MG.master);
+    o.start(T);o.stop(T+.25);
   }
-  padStep++;
+};
+/* patterns — A harmonic-minor phonk riff, roots per bar: Am Am G C */
+const BPM=92,SPB=60/BPM/4; /* seconds per 16th */
+const P_KICK=[1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0];
+const P_SNR =[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1];
+const P_HAT =[1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1];
+const ROOTS=[55,55,49,65.41];
+const CHORDS=[[110,130.81,164.81],[110,130.81,164.81],[98,123.47,146.83],[130.81,164.81,196]];
+const ARP=[220,261.63,329.63,415.3]; /* A C E G# — harmonic minor bite */
+let seqStep=0,seqBar=0,nextT=0,seqOn=false;
+function playStep(s,T){
+  const root=ROOTS[seqBar%4];
+  if(P_KICK[s]){V.kick(T);V.bass(T,root,SPB*3);}
+  if(s===14)V.bass(T,root*1.5,SPB*1.8); /* passing fifth */
+  if(P_SNR[s]&&(s!==15||seqBar%2===1))V.snare(T);
+  if(P_HAT[s])V.hat(T+(s%2?SPB*.06:0),s%8===7); /* swung, open on the 7s */
+  if(s===0&&seqBar%2===0)V.pad(T,CHORDS[seqBar%4]);
+  if(seqBar%4===3&&s>=8&&s%2===0)V.pluck(T,ARP[(s-8)/2]);
 }
-function playBlip(){
-  if(!MG||!musicOn||MG.c.state!=='running')return;
-  const c=MG.c,T=c.currentTime;
-  const o=c.createOscillator();o.type='sine';
-  o.frequency.value=[880,1174.66,1318.51,1760][R(0,4)|0];
-  const gn=c.createGain();env(gn,T,.01,.18,.05);
-  o.connect(gn);gn.connect(MG.delay);
-  o.start(T);o.stop(T+.3);
+function schedule(){
+  const c=MG.c;
+  while(nextT<c.currentTime+.12){
+    playStep(seqStep,nextT);
+    seqStep=(seqStep+1)%16;
+    if(seqStep===0)seqBar++;
+    nextT+=SPB;
+  }
 }
 function musicPlay(){
   const c=ac();if(!c)return;
   buildMusic();
   if(c.state==='suspended')c.resume().catch(()=>{});
-  if(!musicOn){
-    musicOn=true;
-    playPad();
-    setInterval(playPad,8000);
-    (function blipLoop(){setTimeout(()=>{playBlip();blipLoop();},R(2500,7000));})();
+  if(!seqOn){
+    seqOn=true;musicOn=true;
+    nextT=c.currentTime+.1;
+    setInterval(schedule,40);
   }
 }
 
