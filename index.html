@@ -139,6 +139,26 @@ h2{font-size:13px;letter-spacing:.3em;color:var(--dim);margin-bottom:8px}
 .chips span{font-size:9px;letter-spacing:.12em;color:var(--grn);
   border:1px solid var(--grndk);padding:3px 8px}
 
+/* ============ CREW ============ */
+.crew{padding:70px 3vw;border-top:1px solid var(--line)}
+.crewGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:1180px;margin:0 auto 40px}
+.member{border:1px solid var(--line);background:var(--panel);padding:20px;
+  text-align:center;transition:.18s}
+.member:hover{border-color:var(--amb);box-shadow:0 0 24px rgba(255,182,72,.12)}
+.member pre{font-size:11px;line-height:13px;color:var(--amb);
+  text-shadow:0 0 6px rgba(255,182,72,.4);margin-bottom:12px}
+.member h3{font-size:15px;letter-spacing:.1em;color:var(--ink)}
+.member .code{font-size:9px;letter-spacing:.24em;color:var(--amb);margin:4px 0 10px}
+.member p{font-size:12px;line-height:1.85;color:var(--dim);text-align:left}
+.opsLog{max-width:760px;margin:0 auto;border:1px solid var(--line);background:var(--panel2)}
+.opsBar{padding:8px 14px;border-bottom:1px solid var(--line);font-size:10px;
+  letter-spacing:.14em;color:var(--dimmer)}
+.opsBody{padding:16px 18px;font-size:12px;line-height:2.2}
+.opsRow{display:flex;gap:14px;flex-wrap:wrap}
+.opsRow .t{color:var(--grn);min-width:52px}
+.opsRow .w{color:var(--amb);min-width:110px;letter-spacing:.06em}
+.opsRow .d{color:var(--dim);flex:1;min-width:200px}
+
 /* ============ MANIFESTO ============ */
 .manifesto{position:relative;padding:90px 6vw;border-top:1px solid var(--line);
   text-align:center;overflow:hidden}
@@ -167,7 +187,7 @@ footer{padding:26px 3vw;border-top:1px solid var(--line);display:flex;
 
 /* ============ RWD / MOTION ============ */
 @media(max-width:900px){
-  .grid{grid-template-columns:1fr}
+  .grid,.crewGrid{grid-template-columns:1fr}
   .stats{grid-template-columns:repeat(2,1fr)}
   .stat:nth-child(2){border-right:none}
   .stat{border-bottom:1px solid var(--line)}
@@ -195,6 +215,7 @@ footer{padding:26px 3vw;border-top:1px solid var(--line);display:flex;
   <div class="brand glitch" data-t="GARY//OS">GARY//OS</div>
   <nav>
     <a href="#supply">SUPPLY</a>
+    <a href="#crew">CREW</a>
     <a href="#manifesto">MANIFESTO</a>
     <a href="#contact">CONTACT</a>
     <span id="clock">--:--:--</span>
@@ -227,6 +248,16 @@ footer{padding:26px 3vw;border-top:1px solid var(--line);display:flex;
     <h2>// THE SUPPLY</h2>
     <p class="secSub">六件現貨。全部實戰，全部在線。點卡片驗貨。</p>
     <div class="grid" id="grid"></div>
+  </section>
+
+  <section class="crew" id="crew">
+    <h2>// THE CREW — bzteam</h2>
+    <p class="secSub">一人公司的組織圖。六個 AI 小弟駐在同一台 Cloud Run，走 LINE 回報，全年無休。</p>
+    <div class="crewGrid" id="crewGrid"></div>
+    <div class="opsLog">
+      <div class="opsBar">bzteam@cloudrun:~$ crontab -l · DAILY OPS</div>
+      <div class="opsBody" id="opsBody"></div>
+    </div>
   </section>
 
   <section class="manifesto" id="manifesto">
@@ -369,6 +400,50 @@ const GOODS=[
     el.querySelector('.art').textContent=asciiRender(46,20,ART[p.id]);
     grid.appendChild(el);
   }
+})();
+
+/* ---------------- THE CREW (bzteam roster + daily ops) ---------------- */
+const CREW=[
+  {name:'股神',code:'THE ORACLE',
+   face:['    _!_    ','  .-"""-.  ',' / (o) (o)\\','|    ^    |',' \\  ~~~  / ','  `-...-`  ',' [TXF 88%] '],
+   desc:'盤勢判讀手。台指期每小時出一次預測，官方價自動對答案記分，戰績攤開，猜錯自己認。'},
+  {name:'蝦皮助手',code:'THE LISTER',
+   face:['   _____   ','  | o o |  ','  |  _  |  ','  |_____|  ',' /|SHOP |\\ ','  |_____|  ','  d     b  '],
+   desc:'電商上架手。直接接管 Chrome 開賣場，競品參照、表單自動填、一路點到上架完成。'},
+  {name:'打卡小弟',code:'THE CLOCK',
+   face:['   .---.   ','  /12   \\  ',' |9  +  3| ','  \\  6  /  ','   `---`   ','  _/```\\_  ',' TICK TOCK '],
+   desc:'考勤看守。盯著打卡日曆比對行事曆，該打沒打，LINE 直接催到你打為止。'},
+  {name:'記帳小弟',code:'THE LEDGER',
+   face:['  _______  ',' | $ | # | ',' |---+---| ',' | # | $ | ',' |___|___| ','  (o) (o)  ','  BALANCE  '],
+   desc:'帳房。每筆流水入庫，錢從哪來去哪一清二楚，月底不用對發票對到懷疑人生。'},
+  {name:'待辦管家',code:'THE KEEPER',
+   face:['  .-----.  ','  |[x]  |  ','  |[x]  |  ','  |[ ]<-|  ','  `-----`  ','  (o___o)  ','  NO LOSS  '],
+   desc:'任務庫管理員。所有 follow-up 進中央待辦庫歸檔，不准寫在紙上，沒做完的隔天繼續追。'},
+  {name:'巡檢兵',code:'THE MEDIC',
+   face:['    _+_    ','  .-|_|-.  ',' | (-)(-)| ','  \\  o  /  ','   |###|   ','  /|   |\\  ',' ALL GREEN '],
+   desc:'系統軍醫。每天 heartbeat 巡檢全線服務，故障不等老闆發現——自己先傳 LINE 認錯。'}
+];
+(function buildCrew(){
+  const grid=$('#crewGrid');
+  for(const m of CREW){
+    const el=document.createElement('article');
+    el.className='member';
+    el.innerHTML='<pre></pre><h3>'+m.name+'</h3>'
+      +'<div class="code">'+m.code+'</div><p>'+m.desc+'</p>';
+    el.querySelector('pre').textContent=m.face.join('\n');
+    grid.appendChild(el);
+  }
+  const OPS=[
+    ['07:30','THE MEDIC','heartbeat 全系統巡檢 · 沒事不吵，有事 LINE 認錯'],
+    ['09:00','THE CLOCK','打卡日曆比對 · 該打沒打開始催'],
+    ['xx:25','THE ORACLE','台指期盤勢分析 · 每小時出一次手'],
+    ['xx:20','THE ORACLE','官方價對答案 · 自動記分 + 簡報 + LINE 播報'],
+    ['18:00','THE LEDGER','今日帳務結算入庫'],
+    ['23:59','THE KEEPER','待辦清點 · 沒做完的明天繼續追']
+  ];
+  $('#opsBody').innerHTML=OPS.map(r=>
+    '<div class="opsRow"><span class="t">'+r[0]+'</span>'
+    +'<span class="w">'+r[1]+'</span><span class="d">'+r[2]+'</span></div>').join('');
 })();
 
 /* ---------------- WINGS (manifesto backdrop) ---------------- */
