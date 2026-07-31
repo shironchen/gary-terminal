@@ -227,7 +227,7 @@ footer{padding:26px 3vw;border-top:1px solid var(--line);display:flex;
 
 <main>
   <section class="hero">
-    <div class="over">// PERSONAL FILE — GARY CHEN · DATA ENGINEER · TAIPEI</div>
+    <div class="over">// PERSONAL FILE — GARY CHEN · DATA ENGINEER · FOUNDER OF MEOWBOX.TW · TAIPEI</div>
     <h1>DATA<br>DEALER_</h1>
     <p class="sub">白天在電視台搬資料，晚上供應自己的 side projects。
       管線純度 99.9%，交貨準時，全年無休，不賣訂閱。</p>
@@ -276,6 +276,8 @@ footer{padding:26px 3vw;border-top:1px solid var(--line);display:flex;
     <div class="orderBox">
       <div class="orderRow"><span class="k">GITHUB</span>
         <a href="https://github.com/shironchen" target="_blank" rel="noopener">github.com/shironchen</a></div>
+      <div class="orderRow"><span class="k">MEOWBOX</span>
+        <a href="https://meowbox.tw" target="_blank" rel="noopener">meowbox.tw — 我創辦的貓咪社群</a></div>
       <div class="orderRow"><span class="k">EMAIL</span>
         <a href="mailto:shironchen@gmail.com">shironchen@gmail.com</a></div>
       <div class="orderRow"><span class="k">LINKEDIN</span>
@@ -381,9 +383,9 @@ const GOODS=[
   {id:'bzteam',name:'BZTEAM',tag:'THE CREW',
    desc:'LINE 上的私人 AI 團隊。待辦、打卡、記帳、排程 routine，一個 Cloud Run 養一整組小弟。',
    chips:['FASTAPI','FIRESTORE','LINE','SCHEDULER']},
-  {id:'meowbox',name:'MEOWBOX',tag:'CAT DIVISION',
-   desc:'meowbox.tw 貓咪社群。純 vanilla HTML/CSS/JS + Supabase，跟本站一樣不吃框架。',
-   chips:['HTML','JS','SUPABASE']},
+  {id:'meowbox',name:'MEOWBOX',tag:'FOUNDER · CAT DIVISION',
+   desc:'喵盒子 meowbox.tw，本人創辦的台灣貓咪社群。從第一行 code 到上線營運一手包，純 vanilla HTML/CSS/JS + Supabase，跟本站一樣不吃框架。',
+   chips:['FOUNDER','HTML','JS','SUPABASE'],link:'https://meowbox.tw'},
   {id:'txf',name:'TXF ORACLE',tag:'THE FORTUNE TELLER',
    desc:'台指期每小時預測 routine。雲端排程分析、官方價自動記分、LINE 準時播報，猜錯自己認。',
    chips:['SCHEDULER','LLM','LINE']}
@@ -398,6 +400,10 @@ const GOODS=[
       +'<p>'+p.desc+'</p>'
       +'<div class="chips">'+p.chips.map(c=>'<span>'+c+'</span>').join('')+'</div>';
     el.querySelector('.art').textContent=asciiRender(46,20,ART[p.id]);
+    if(p.link){
+      el.style.cursor='pointer';
+      el.addEventListener('click',()=>window.open(p.link,'_blank','noopener'));
+    }
     grid.appendChild(el);
   }
 })();
